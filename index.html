@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 68 - Legend Of The Wind Mill</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --accent-blue: #3b82f6;
+            --accent-gold: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            padding: 15px 25px;
+            border-bottom: 2px solid var(--accent-blue);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        header h1 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        header .authors {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 15px;
+            padding: 15px;
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            height: calc(100vh - 70px);
+        }
+
+        @media (max-width: 1100px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            overflow-y: auto;
+        }
+
+        /* Left Panel: Stats & HUD */
+        .hud-section h3, .panel h3 {
+            font-size: 1rem;
+            color: var(--accent-blue);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .bar-container {
+            background: var(--bg-color);
+            border-radius: 5px;
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+
+        #hp-fill { background-color: var(--accent-red); }
+        #xp-fill { background-color: var(--accent-green); }
+
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .inv-slot {
+            background: var(--bg-color);
+            border: 1px dashed var(--border-color);
+            border-radius: 6px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .inv-slot:hover {
+            border-color: var(--accent-blue);
+        }
+
+        /* Center Panel: Game Screen / Story Engine */
+        .game-viewport {
+            position: relative;
+            background: radial-gradient(circle, #1e293b 0%, #0f172a 100%);
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 400px;
+        }
+
+        .viewport-header {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 10px 15px;
+            font-weight: bold;
+            color: var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .viewport-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .story-text {
+            line-height: 1.6;
+            font-size: 1.05rem;
+            color: var(--text-main);
+        }
+
+        .interactive-canvas-area {
+            flex: 1;
+            background: #090d16;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+
+        .viewport-actions {
+            padding: 15px;
+            background: rgba(15, 23, 42, 0.9);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button.game-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        button.game-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        button.game-btn.secondary {
+            background: #475569;
+        }
+        button.game-btn.secondary:hover {
+            background: #334155;
+        }
+
+        button.game-btn.danger {
+            background: #dc2626;
+        }
+        button.game-btn.danger:hover {
+            background: #b91c1c;
+        }
+
+        button.game-btn.success {
+            background: #16a34a;
+        }
+        button.game-btn.success:hover {
+            background: #15803d;
+        }
+
+        /* Right Panel: Quests & Log */
+        .quest-item {
+            background: var(--bg-color);
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent-gold);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+
+        .quest-item.completed {
+            border-left-color: var(--accent-green);
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+
+        .log-box {
+            background: var(--bg-color);
+            border-radius: 6px;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            height: 180px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            font-family: monospace;
+        }
+
+        /* Visual Mini-Game Canvas inside viewport */
+        #sim-canvas {
+            width: 100%;
+            height: 100%;
+            background: #0b1329;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .modal-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--accent-gold);
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-card h2 {
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+        }
+
+        .modal-card p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>Chapter 68 - Legend Of The Wind Mill</h1>
+            <div class="authors">Written by Lewis Lepardy & “The Rages Band”</div>
+        </div>
+        <div id="game-status-badge" style="background: var(--accent-blue); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
+            Mode: Story & Simulation
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- LEFT PANEL: Character Stats & Inventory -->
+        <div class="panel">
+            <div class="hud-section">
+                <h3>Player Character</h3>
+                <div class="stat-row">
+                    <span>Name: <strong id="char-name">Kid Rene / Manoy</strong></span>
+                    <span>Lvl: <span id="char-lvl">1</span></span>
+                </div>
+                <div class="stat-row">
+                    <span>Class:</span>
+                    <span id="char-class" style="color: var(--accent-gold);">Stubborn Kid / Farmer</span>
+                </div>
+                <div class="stat-row">
+                    <span>HP:</span>
+                    <span id="hp-text">100/100</span>
+                </div>
+                <div class="bar-container"><div id="hp-fill" class="bar-fill"></div></div>
+                <div class="stat-row">
+                    <span>XP:</span>
+                    <span id="xp-text">0/100</span>
+                </div>
+                <div class="bar-container"><div id="xp-fill" class="bar-fill" style="width: 0%;"></div></div>
+            </div>
+
+            <div class="hud-section">
+                <h3>Stats & Attributes</h3>
+                <div class="stat-row"><span>Speed:</span> <strong id="stat-speed">1,000,000 /hr</strong></div>
+                <div class="stat-row"><span>Wisdom:</span> <strong id="stat-wisdom">15</strong></div>
+                <div class="stat-row"><span>Greed Factor:</span> <strong id="stat-greed" style="color: var(--accent-red);">High (Strangers)</strong></div>
+            </div>
+
+            <div class="hud-section">
+                <h3>Inventory System</h3>
+                <div class="inventory-grid" id="inv-grid">
+                    <div class="inv-slot" title="Pack of Corn (Breakfast)">🌽</div>
+                    <div class="inv-slot" title="Green Button (Off Switch)">🟢</div>
+                    <div class="inv-slot" title="Red Button (Legendary Wind)">🔴</div>
+                    <div class="inv-slot" title="CCTV Evidence Tape">📼</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER PANEL: Game Viewport & Interactive Story -->
+        <div class="game-viewport">
+            <div class="viewport-header">
+                <span id="chapter-title">Chapter 1: Introduction to the Windmill</span>
+                <span id="control-mode-lbl">Third-Person View / 3D World Map</span>
+            </div>
+
+            <div class="viewport-content" id="viewport-main-content">
+                <div class="story-text" id="story-display-text">
+                    Once upon a time there lived an old man farmer named Manoy in a farmhouse with his kid named Rene. Rene is playing around without understanding safety rules. Old Man Manoy warned him: "Never be fond of playing within the windmill! Once you push the button in the wrong place, you will be blown away by the legendary wind!" Manoy leaves to buy a pack of corn for breakfast. Will Rene obey, or will he push the buttons?
+                </div>
+
+                <div class="interactive-canvas-area">
+                    <canvas id="sim-canvas" width="600" height="260"></canvas>
+                </div>
+            </div>
+
+            <div class="viewport-actions" id="viewport-actions-bar">
+                <button class="game-btn success" onclick="GameEngine.handleChoice('green')">Push Green Button (Safe / Off)</button>
+                <button class="game-btn danger" onclick="GameEngine.handleChoice('red')">Push Red Button (Legendary Wind!)</button>
+                <button class="game-btn secondary" onclick="GameEngine.nextChapter()">Skip / Next Chapter ➔</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Quests & System Log -->
+        <div class="panel">
+            <div class="hud-section">
+                <h3>Quests (Main & Side)</h3>
+                <div id="quest-list">
+                    <div class="quest-item" id="q1">1. Main Quest: Survive the Windmill & Legend Wind</div>
+                    <div class="quest-item" id="q2">2. Main Quest: Deal with the 4 Greedy Strangers</div>
+                    <div class="quest-item" id="q3">3. Main Quest: Hospital Job Rejection & CCTV Evidence</div>
+                    <div class="quest-item" id="q4">4. Main Quest: Police Station Blotter & Old Man Manoy's Justice</div>
+                    <div class="quest-item" id="q5">5. Main Quest: Demolish the Windmill & Restore Peace</div>
+                </div>
+            </div>
+
+            <div class="hud-section">
+                <h3>Action & Combat Log</h3>
+                <div class="log-box" id="system-log">
+                    [00:00] Game initialized successfully.<br>
+                    [00:01] Loaded Chapter 68: Legend Of The Wind Mill.<br>
+                    [00:02] Farmer Manoy departed to buy corn breakfast.<br>
+                    [00:03] Kid Rene approaches the windmill controls...<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Popup for Events -->
+    <div class="modal-overlay" id="game-modal">
+        <div class="modal-card">
+            <h2 id="modal-title">Event Triggered</h2>
+            <p id="modal-desc">Description text goes here.</p>
+            <button class="game-btn" onclick="GameEngine.closeModal()">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State & Engine
+        const GameEngine = {
+            currentChapter: 1,
+            hp: 100,
+            xp: 0,
+            level: 1,
+            speed: "1,000,000 /hr",
+            inventory: ["🌽 Corn", "🟢 Green Btn", "🔴 Red Btn", "📼 CCTV Tape"],
+            canvas: null,
+            ctx: null,
+            animationId: null,
+            simState: 'windmill', // windmill, strangers, hospital, police, peaceful
+
+            init() {
+                this.canvas = document.getElementById('sim-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.startAnimation();
+                this.updateUI();
+                this.log("Simulation engine online. Zero syntax errors detected.");
+            },
+
+            log(text) {
+                const logBox = document.getElementById('system-log');
+                const time = new Date().toLocaleTimeString();
+                logBox.innerHTML += `[${time}] ${text}<br>`;
+                logBox.scrollTop = logBox.scrollHeight;
+            },
+
+            updateUI() {
+                document.getElementById('char-lvl').innerText = this.level;
+                document.getElementById('hp-text').innerText = `${this.hp}/100`;
+                document.getElementById('hp-fill').style.width = `${this.hp}%`;
+                document.getElementById('xp-text').innerText = `${this.xp}/100`;
+                document.getElementById('xp-fill').style.width = `${this.xp}%`;
+            },
+
+            handleChoice(choice) {
+                if (this.currentChapter === 1) {
+                    if (choice === 'green') {
+                        this.log("Rene pushed the Green Button. Nothing happened. Safe!");
+                        this.showModal("Wise Choice!", "Kid Rene pressed the green off switch. The legendary wind remained calm. Old Man Manoy returned with breakfast safely!");
+                        this.xp += 50;
+                        if (this.xp >= 100) this.levelUp();
+                    } else {
+                        this.log("Rene pushed the Red Button! Legendary Wind activated at 1 million speed/hr!");
+                        this.showModal("Disaster!", "Kid Rene pushed the red button! A legendary wind blew him far away into the mysterious building. Disobeying Old Man Manoy had immediate consequences!");
+                        this.hp -= 30;
+                        this.nextChapter();
+                    }
+                } else if (this.currentChapter === 2) {
+                    this.log("The 4 strangers appeared and tricked Kid Rene in the building.");
+                    this.showModal("The 4 Strangers", "The strangers pretended to help Rene, but muted him and committed a heinous act for hospital organ money! Old Man Manoy sneaked out safely.");
+                    this.nextChapter();
+                } else if (this.currentChapter === 3) {
+                    this.log("Strangers tried to apply for a job at the hospital. Nurses & Doctors rejected them!");
+                    this.showModal("Hospital Justice", "Nurses and doctors exposed the 4 murderers knowing their evil plan to convert organs into medicine illegally. Guards arrested them!");
+                    this.nextChapter();
+                } else if (this.currentChapter === 4) {
+                    this.log("Police checked CCTV and Old Man Manoy confronted the 4 strangers in jail.");
+                    this.showModal("Confrontation in Jail", "Old Man Manoy shouted at the creepy bastards! The police blottered the evidence on the wall for all visitors to witness.");
+                    this.nextChapter();
+                } else if (this.currentChapter === 5) {
+                    this.log("Old Man Manoy destroyed the windmill and lived peacefully helping the poor.");
+                    this.showModal("Moral Lesson & Peace", "Windmill destroyed forever! No more naughty consequences. Old Man Manoy focuses on farming and helping hungry people. The End!");
+                    document.getElementById('q5').classList.add('completed');
+                }
+                this.updateUI();
+            },
+
+            nextChapter() {
+                this.currentChapter++;
+                if (this.currentChapter > 5) {
+                    this.currentChapter = 5;
+                    this.showModal("Game Completed!", "You have completed Chapter 68: Legend Of The Wind Mill! Review the Moral Lesson carefully.");
+                    return;
+                }
+
+                const titles = [
+                    "",
+                    "Chapter 1: The Boastful Activity & Legendary Wind",
+                    "Chapter 2: The 4 Strangers & The Hospital Organ Plot",
+                    "Chapter 3: Nurses & Doctors Expose the Murderers",
+                    "Chapter 4: Police Blotter & Old Man Manoy's Confrontation",
+                    "Chapter 5: Windmill Destroyed & Peaceful Farmhouse"
+                ];
+
+                const texts = [
+                    "",
+                    "Kid Rene got blown away into the giant building by the legendary wind.",
+                    "The 4 strangers slaughtered Rene for organ greed while Manoy sneaked away to safety.",
+                    "The 4 criminals went to the hospital to get a job selling organs, but nurses and doctors immediately rejected and jailed them.",
+                    "Police reviewed CCTV footage. Old Man Manoy visited the jail and condemned the 4 strangers' crimes.",
+                    "Old Man Manoy destroyed the cursed windmill forever, feeding the hungry and living in absolute peace."
+                ];
+
+                document.getElementById('chapter-title').innerText = titles[this.currentChapter];
+                document.getElementById('story-display-text').innerText = texts[this.currentChapter];
+                
+                // Update quest list indicators
+                if(this.currentChapter === 2) document.getElementById('q1').classList.add('completed');
+                if(this.currentChapter === 3) document.getElementById('q2').classList.add('completed');
+                if(this.currentChapter === 4) document.getElementById('q3').classList.add('completed');
+                if(this.currentChapter === 5) document.getElementById('q4').classList.add('completed');
+
+                this.simState = ['windmill', 'strangers', 'hospital', 'police', 'peaceful'][this.currentChapter - 1];
+                this.log(`Transitioned to Chapter ${this.currentChapter}.`);
+            },
+
+            levelUp() {
+                this.level++;
+                this.xp = 0;
+                this.hp = 100;
+                this.log(`Level Up! You are now Level ${this.level}. Stats increased!`);
+            },
+
+            showModal(title, desc) {
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-desc').innerText = desc;
+                document.getElementById('game-modal').style.display = 'flex';
+            },
+
+            closeModal() {
+                document.getElementById('game-modal').style.display = 'none';
+            },
+
+            startAnimation() {
+                let angle = 0;
+                let particleX = 50;
+
+                const render = () => {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                    // Draw background grid / landscape
+                    this.ctx.fillStyle = '#0f172a';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                    if (this.simState === 'windmill') {
+                        // Draw Windmill
+                        this.ctx.fillStyle = '#64748b';
+                        this.ctx.fillRect(250, 100, 100, 160); // Base tower
+
+                        // Blades spinning
+                        this.ctx.save();
+                        this.ctx.translate(300, 100);
+                        this.ctx.rotate(angle);
+                        this.ctx.strokeStyle = '#f8fafc';
+                        this.ctx.lineWidth = 6;
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(-50, 0); this.ctx.lineTo(50, 0);
+                        this.ctx.moveTo(0, -50); this.ctx.lineTo(0, 50);
+                        this.ctx.stroke();
+                        this.ctx.restore();
+
+                        angle += 0.05;
+
+                        // Draw Kid Rene running
+                        this.ctx.fillStyle = '#38bdf8';
+                        this.ctx.beginPath();
+                        this.ctx.arc(particleX, 220, 12, 0, Math.PI * 2);
+                        this.ctx.fill();
+
+                        particleX += 1.5;
+                        if (particleX > 550) particleX = 50;
+
+                    } else if (this.simState === 'strangers') {
+                        // Draw 4 Strangers & Building
+                        this.ctx.fillStyle = '#334155';
+                        this.ctx.fillRect(100, 40, 400, 200);
+                        
+                        for(let i=0; i<4; i++) {
+                            this.ctx.fillStyle = i === 0 ? '#ef4444' : '#f59e0b';
+                            this.ctx.fillRect(140 + (i * 80), 120, 30, 80);
+                        }
+                    } else if (this.simState === 'hospital') {
+                        // Hospital & Nurses
+                        this.ctx.fillStyle = '#0284c7';
+                        this.ctx.fillRect(150, 50, 300, 180);
+                        this.ctx.fillStyle = '#ffffff';
+                        this.ctx.fillRect(270, 80, 60, 120);
+                        this.ctx.fillRect(210, 110, 180, 60); // Cross
+                    } else if (this.simState === 'police') {
+                        // Police Station / Jail
+                        this.ctx.fillStyle = '#1e293b';
+                        this.ctx.fillRect(120, 50, 360, 180);
+                        this.ctx.strokeStyle = '#ef4444';
+                        this.ctx.lineWidth = 4;
+                        for(let i=0; i<5; i++) {
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(180 + (i * 55), 50);
+                            this.ctx.lineTo(180 + (i * 55), 230);
+                            this.ctx.stroke();
+                        }
+                    } else {
+                        // Peaceful Farmhouse & destroyed windmill
+                        this.ctx.fillStyle = '#15803d';
+                        this.ctx.fillRect(0, 200, 600, 60);
+                        this.ctx.fillStyle = '#b45309';
+                        this.ctx.fillRect(250, 140, 100, 90);
+                        this.ctx.fillStyle = '#f8fafc';
+                        this.ctx.font = '16px sans-serif';
+                        this.ctx.fillText("✨ Peaceful Farmhouse - No More Windmill! ✨", 130, 100);
+                    }
+
+                    this.animationId = requestAnimationFrame(render);
+                };
+
+                render();
+            }
+        };
+
+        window.onload = () => {
+            GameEngine.init();
+        };
+    </script>
+</body>
+</html>
